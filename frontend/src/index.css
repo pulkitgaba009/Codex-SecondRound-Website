@@ -1,0 +1,68 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Orbitron:wght@400..900&display=swap');
+@import "tailwindcss";
+
+/* rule css */
+.ruleHeadings {
+  @apply font-[Orbitron] text-[#e434e4] [text-shadow:_0_0_1px_#a934e4,_0_0_10px_#a934e4] text-2xl text-left;
+}
+
+.rulePara {
+  @apply font-[Montserrat] text-[#e6dede] [text-shadow:_0_0_5px_#ffffff] text-justify ml-8;
+}
+
+/* Admin Navbar */
+.adminNavbar {
+  @apply font-[Orbitron] hover:[text-shadow:_0_0_10px_#34d8e4];
+}
+
+/* box and subDivs */
+.box {
+  @apply  h-[41rem] w-full flex gap-4 px-16 py-4;
+}
+
+.subDivs {
+  @apply bg-[rgba(0,0,0,0.5)] rounded-xl;
+}
+
+/* heading ,question Auth and quiz mode */
+.authHeading {
+  @apply font-[Orbitron] font-bold text-xl text-[#fcf53a] [text-shadow:_0_0_12px_#FFCC00] text-center mt-2;
+}
+
+.question {
+  @apply font-[Orbitron] text-[#e434e4] [text-shadow:_0_0_10px_#a934e4] text-xl text-left inline;
+}
+
+.questionPara {
+  @apply font-[Montserrat] text-[#e6dede] [text-shadow:_0_0_5px_#ffffff] text-justify inline text-[1rem];
+}
+
+.code {
+  @apply font-[Montserrat] text-[#e6dede] [text-shadow:_0_0_10px_#e6dede];
+}
+
+.option{
+@apply font-[Montserrat] text-[#e6dede] [text-shadow:_0_0_10px_#e6dede] text-xl border rounded-xl p-4 my-4 font-medium  bg-[rgba(0,0,0,0.5)] hover:[box-shadow:_0_0_12px_#FFCC00];
+}
+
+.label{
+  @apply self-start font-[Orbitron] text-xl text-[#34e47b] [text-shadow:_0_0_10px_#3eeb91]
+}
+
+.input{
+  @apply ml-4 font-[Orbitron] text-xl text-[#67dfbb] [text-shadow:_0_0_.5px_#67dfbb,_0_0_1px_#67dfbb,_0_0_9px_#67dfbb] py-1 border-2 bg-[rgba(0,0,0,0.3)]
+}
+
+/* Horizontal Line */
+.horizontalLine {
+  @apply w-[100%] h-[2px] border-0 rounded bg-white shadow-[0_0_10px_#FFD700,0_0_20px_#FFD700];
+}
+
+/* Scrollbar hidden */
+.scrollbar-hidden {
+  scrollbar-width: none;
+}
+
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none;
+}
