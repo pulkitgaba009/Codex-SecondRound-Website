@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import Layout from "../Layout";
 import { motion } from "framer-motion";
 import axios from "axios";
 import { Loading, RateLimiting } from "../../Helper";
@@ -25,12 +24,10 @@ const sortByScoreAndTime = (results) => {
     if (b.score !== a.score) {
       return b.score - a.score;
     }
-
-    // 2️⃣ Higher remaining time first (faster submission)
+    // 2️⃣ Higher remaining time first
     return b.timeRemaining - a.timeRemaining;
   });
 };
-
 
 function Leaderboard() {
   const [loading, setLoading] = useState(true);
@@ -39,7 +36,7 @@ function Leaderboard() {
 
   const getResults = async () => {
     try {
-      const { data } = await axios.get("http://localhost:3000/api/results");
+      const { data } = await axios.get("http://localhost:3000/api/result");
       setResults(data);
     } catch (error) {
       if (error.response?.status === 429) {
@@ -54,7 +51,7 @@ function Leaderboard() {
 
   const deleteResult = async (id) => {
     try {
-      await axios.delete(`http://localhost:3000/api/results/${id}`);
+      await axios.delete(`http://localhost:3000/api/result/${id}`);
       setResults((prev) => prev.filter((item) => item._id !== id));
       toast.success("Result deleted");
     } catch {
@@ -64,6 +61,7 @@ function Leaderboard() {
 
   useEffect(() => {
     getResults();
+    console.log(results);
   }, []);
 
   if (loading) return <Loading />;
@@ -82,8 +80,7 @@ function Leaderboard() {
           initial={{ y: 30, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.3 }}
-          className="w-full max-w-7xl bg-black/50 backdrop-blur-xl
-          rounded-2xl"
+          className="w-full max-w-7xl bg-black/50 backdrop-blur-xl rounded-2xl"
         >
           {/* SCROLL CONTAINER */}
           <div className="mt-4 max-h-[82vh] overflow-y-auto scrollbar-hidden">
@@ -96,7 +93,9 @@ function Leaderboard() {
                   <th className="py-4 px-4 font-[Orbitron] text-xl text-center">
                     Time Remaining
                   </th>
-                  <th className="py-4 px-4 font-[Orbitron] text-xl text-center">Action</th>
+                  <th className="py-4 px-4 font-[Orbitron] text-xl text-center">
+                    Action
+                  </th>
                 </tr>
               </thead>
 
@@ -109,11 +108,11 @@ function Leaderboard() {
                     transition={{ delay: index * 0.05 }}
                     className="border-b border-white/10 hover:bg-white/5"
                   >
-                    <td className="py-3 px-4 text-center  text-white/80  [text-shadow:_0_0_20px_#ffffff] font-[Orbitron] font-bold">
+                    <td className="py-3 px-4 text-center text-white/80 [text-shadow:_0_0_20px_#ffffff] font-[Orbitron] font-bold">
                       {index + 1}
                     </td>
 
-                    <td className="py-3 px-4 font-[Orbitron] text-white/80  [text-shadow:_0_0_20px_#ffffff] ">
+                    <td className="py-3 px-4 font-[Orbitron] text-white/80 [text-shadow:_0_0_20px_#ffffff]">
                       {item.teamName}
                     </td>
 
@@ -125,11 +124,21 @@ function Leaderboard() {
                       {formatTime(item.timeRemaining)}
                     </td>
 
-                    <td className="py-3 px-4 text-center">
+                    {/* ACTION BUTTONS */}
+                    <td className="py-3 px-4 text-center flex gap-2 justify-center">
+                      <button
+                        onClick={() => {
+                          console.log("Question ID:", item._id);
+                          toast.success(`Question ID: ${item._id}`);
+                        }}
+                        className="bg-[#34e47b] hover:bg-[#27c064] px-4 py-1 rounded-lg font-semibold transition-all font-[Orbitron] text-blue-950"
+                      >
+                        Code
+                      </button>
+
                       <button
                         onClick={() => deleteResult(item._id)}
-                        className="bg-red-600 hover:bg-red-700 px-4 py-1
-                        rounded-lg font-semibold transition-all font-[Orbitron]"
+                        className="bg-red-600 hover:bg-red-700 px-4 py-1 rounded-lg font-semibold transition-all font-[Orbitron]"
                       >
                         Delete
                       </button>
