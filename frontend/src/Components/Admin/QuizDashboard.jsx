@@ -91,7 +91,7 @@ function QuizDashboard() {
     const putSettings = async()=>{
       try{
         setUpdate(true);
-        await axios.put("http://localhost:3000/api/settings/6962af0a6027944aebae060c",payload);
+        await axios.put("http://localhost:3000/api/settings/6977aeff56528f6ed630fd3e",payload);
         getSettings();
         toast.success("Settings Updated Successfully !!!");
       }catch(error){

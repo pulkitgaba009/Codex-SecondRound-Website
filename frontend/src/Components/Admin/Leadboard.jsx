@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import axios from "axios";
 import { Loading, RateLimiting } from "../../Helper";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 /* ---------- TIME FORMATTER ---------- */
 const formatTime = (seconds = 0) => {
@@ -33,6 +34,7 @@ function Leaderboard() {
   const [loading, setLoading] = useState(true);
   const [rateLimited, setRateLimited] = useState(false);
   const [results, setResults] = useState([]);
+  const navigate = useNavigate();
 
   const getResults = async () => {
     try {
@@ -128,8 +130,7 @@ function Leaderboard() {
                     <td className="py-3 px-4 text-center flex gap-2 justify-center">
                       <button
                         onClick={() => {
-                          console.log("Question ID:", item._id);
-                          toast.success(`Question ID: ${item._id}`);
+                          navigate(`/view/${item._id}`);
                         }}
                         className="bg-[#34e47b] hover:bg-[#27c064] px-4 py-1 rounded-lg font-semibold transition-all font-[Orbitron] text-blue-950"
                       >

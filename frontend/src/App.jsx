@@ -37,8 +37,8 @@ function App() {
           <Route path="addQuestion" element={<AddQuestion />} />
           <Route path="editQuestion" element={<EditQuestion />} />
           <Route path="leadboard" element={<Leadboard />}/>
-          <Route path="view/:id" element={<Detailed/>}/>
         </Route>
+          <Route path="view/:id" element={<Detailed/>}/>
           <Route path="*" element={<DontExist/>}/>
       </Routes>
     </>
