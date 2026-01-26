@@ -13,6 +13,7 @@ import Leadboard from "./Components/Admin/Leadboard";
 import Quiz from "./Components/QuizPage/Quiz";
 import End from "./End";
 import DontExist from "./DontExist";
+import Detailed from "./Components/Admin/Detailed";
 
 function App() {
   return (
@@ -35,7 +36,8 @@ function App() {
           <Route index element={<QuizDashboard />} />
           <Route path="addQuestion" element={<AddQuestion />} />
           <Route path="editQuestion" element={<EditQuestion />} />
-          <Route path="leadboard" element={<Leadboard />} />
+          <Route path="leadboard" element={<Leadboard />}/>
+          <Route path="view/:id" element={<Detailed/>}/>
         </Route>
           <Route path="*" element={<DontExist/>}/>
       </Routes>

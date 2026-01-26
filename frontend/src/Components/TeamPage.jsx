@@ -18,7 +18,7 @@ function TeamPage() {
   useEffect(() => {
     const getResults = async () => {
       try {
-        const { data } = await axios.get("http://localhost:3000/api/results");
+        const { data } = await axios.get("http://localhost:3000/api/result");
         setResults(data);
       } catch (error) {
         toast.error("Failed to data");
