@@ -25,7 +25,7 @@ function QuestionForm({
   const deleteQuestion = async () => {
     try {
       setDel(true);
-      await axios.delete(`http://localhost:3000/api/questions/${formData._id}`);
+      await axios.delete(`http://localhost:3000/api/question/${formData._id}`);
       setQuestions((prev) => prev.filter((item) => item._id !== formData._id));
       toast.success("Question deleted successfully");
     } catch (error) {

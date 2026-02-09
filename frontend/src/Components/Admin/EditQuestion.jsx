@@ -15,7 +15,7 @@ function EditQuestion() {
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
-        const { data } = await axios.get("http://localhost:3000/api/questions");
+        const { data } = await axios.get("http://localhost:3000/api/question");
         setQuestions(data);
         setSelectedQuestion(data[0] || null);
       } catch (error) {
