@@ -11,7 +11,6 @@ import TimeContext from "../../Contexts/timeContext";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { Loading } from "../../Helper";
-import SecureQuiz from "./SecureQuiz";
 import LanguageSelector from "./LanguageSelector";
 import { LanguageConfig } from "../../data/languageConfig.js";
 import CodeEditor from "./CodeEditor.jsx";
@@ -22,27 +21,36 @@ function Quiz() {
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [settings, setSettings] = useState(null);
+
   const [language, setLanguage] = useState("javascript");
 
   const [codeMap, setCodeMap] = useState({});
   const [editorValue, setEditorValue] = useState("");
 
-  const getInitialCode = (question, language, codeMap) => {
+  const navigate = useNavigate();
+  const { team } = useContext(TeamContext);
+  const { timeData } = useContext(TimeContext);
+
+  /* ---------------- HELPERS ---------------- */
+
+  const getInitialCode = (question, lang) => {
     if (!question) return "";
 
-    if (codeMap?.[question._id]?.[language]) {
-      return codeMap[question._id][language];
-    }
-
-    return question.starterCode?.[language] || "";
+    return (
+      codeMap?.[question._id]?.[lang] ||
+      question.starterCode?.[lang] ||
+      ""
+    );
   };
 
-  useEffect(() => {
-    if (!activeQuestion || !language) return;
+  /* ---------------- EFFECTS ---------------- */
 
-    const code = getInitialCode(activeQuestion, language, codeMap);
-    setEditorValue(code);
+  useEffect(() => {
+    if (!activeQuestion) return;
+    setEditorValue(getInitialCode(activeQuestion, language));
   }, [activeQuestion, language]);
+
+  /* ---------------- CODE CHANGE ---------------- */
 
   const handleCodeChange = (value) => {
     setEditorValue(value);
@@ -54,19 +62,19 @@ function Quiz() {
       [activeQuestion._id]: {
         ...prev[activeQuestion._id],
         [language]: value,
+        language, // store selected language per question
       },
     }));
   };
 
-  const navigate = useNavigate();
-  const { team } = useContext(TeamContext);
-  const { timeData } = useContext(TimeContext);
-
   /* ---------------- SETTINGS ---------------- */
+
   useEffect(() => {
     const getSettings = async () => {
       try {
-        const { data } = await axios.get("http://localhost:3000/api/settings");
+        const { data } = await axios.get(
+          "http://localhost:3000/api/settings"
+        );
         setSettings(data[0]);
       } catch {
         toast.error("Failed to load quiz settings");
@@ -76,14 +84,18 @@ function Quiz() {
   }, []);
 
   /* ---------------- QUESTIONS ---------------- */
+
   useEffect(() => {
     if (!settings) return;
 
     const fetchQuestions = async () => {
       try {
-        const { data } = await axios.get("http://localhost:3000/api/question");
+        const { data } = await axios.get(
+          "http://localhost:3000/api/question"
+        );
 
         let final = [...data];
+
         if (settings.shuffleStatus) {
           final.sort(() => Math.random() - 0.5);
         }
@@ -102,23 +114,65 @@ function Quiz() {
     fetchQuestions();
   }, [settings]);
 
+  /* ---------------- BUILD PAYLOAD ---------------- */
+
+  const buildPayload = () => {
+    return {
+      teamName: team,
+      timeRemaining: timeData || 0,
+
+      results: questions.map((q) => {
+        const qState = codeMap[q._id] || {};
+
+        const finalLanguage = qState.language || "javascript";
+
+        const finalCode =
+          qState[finalLanguage] ||
+          q.starterCode?.[finalLanguage] ||
+          "";
+
+        return {
+          questionId: q._id,
+          language: finalLanguage,
+          code: finalCode,
+        };
+      }),
+    };
+  };
+
   /* ---------------- SUBMIT ---------------- */
-  const submitQuiz = () => {
+
+  const submitQuiz = async () => {
     if (submitted) return;
     setSubmitted(true);
-    toast.success("Quiz submitted");
-    navigate("/end");
+
+    try {
+      const payload = buildPayload();
+
+      await axios.post(
+        "http://localhost:3000/api/result",
+        payload
+      );
+
+      toast.success("Quiz submitted successfully");
+      navigate("/end");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to submit quiz");
+    }
   };
+
+  /* ---------------- GUARD ---------------- */
 
   if (!team) {
     navigate("/end");
     return null;
   }
 
+  /* ---------------- UI ---------------- */
+
   return (
     <Layout>
-      {/* <SecureQuiz onAutoSubmit={submitQuiz} />  */}
-
       <Header />
 
       <motion.div
@@ -133,6 +187,7 @@ function Quiz() {
           <div className="h-full w-full flex justify-center">
             <div className="h-full w-full max-w-[1800px] px-16">
               <div className="h-full w-full grid grid-cols-12 gap-6">
+                {/* LEFT */}
                 <div className="subDivs col-span-7 h-full flex flex-col min-h-0">
                   <div className="flex justify-between items-center px-5 pt-3">
                     <QuizQuestionsList
@@ -141,6 +196,7 @@ function Quiz() {
                       onSelect={setActiveQuestion}
                       disabled={submitted}
                     />
+
                     <h1 className="font-[Orbitron] font-bold text-xl text-[#fcf53a] [text-shadow:_0_0_12px_#FFCC00]">
                       Team : <span className="text-white">{team}</span>
                     </h1>
@@ -164,9 +220,8 @@ function Quiz() {
                   </div>
                 </div>
 
-                {/* RIGHT PANEL */}
+                {/* RIGHT */}
                 <div className="subDivs col-span-5 h-full flex flex-col min-h-0">
-                  {/* HEADER */}
                   <div className="flex justify-between items-center px-5 pt-3">
                     <LanguageSelector
                       languages={LanguageConfig}
@@ -198,6 +253,7 @@ function Quiz() {
                   </div>
 
                   <hr className="horizontalLine mt-1" />
+
                   <CodeEditor
                     language={language}
                     value={editorValue}
