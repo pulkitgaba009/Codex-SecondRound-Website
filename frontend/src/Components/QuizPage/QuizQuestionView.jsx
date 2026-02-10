@@ -1,78 +1,90 @@
-import { useState, useEffect } from "react";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { atomDark } from "react-syntax-highlighter/dist/esm/styles/prism";
-
-function QuestionView({ question, onAnswer, selectedAnswer }) {
-  const [selected, setSelected] = useState(selectedAnswer || "");
-
-  useEffect(() => {
-    setSelected(selectedAnswer || "");
-  }, [question, selectedAnswer]);
-
-  const handleSelect = (value) => {
-    setSelected(value);
-    const isCorrect = value === question.answer;
-    onAnswer(question._id, value);
-  };
-
+function QuestionView({ question }) {
   if (!question) return null;
 
+  const formData = question;
+
   return (
-    <div className="w-full mt-4 h-[80%] md:h-[85%] overflow-auto scrollbar-hidden px-8">
-      <h2 className="question">Question :</h2>
+    // THIS is the key: take full height + scroll internally
+    <div className="w-full h-full overflow-y-auto scrollbar-hidden px-8 py-4">
 
-      <p className="questionPara">{question.question}</p>
+      {/* Description */}
+      <p className="font-[Orbitron] text-md text-[#34e47b] [text-shadow:_0_0_10px_#3eeb91]">
+        Question Description
+      </p>
+      <p className="questionPara">
+        {formData?.description || "No description available"}
+      </p>
 
-      {question.code && (
-        <div className="mt-4 bg-black rounded-2xl">
-          <h2 className="text-xl font-semibold ml-4 pt-2 code">
-            Code: {question.language}
-          </h2>
+      <div className="h-6" />
 
-          <div className="p-2">
-            <SyntaxHighlighter
-              language={question.language.toLowerCase()}
-              style={atomDark}
-              customStyle={{
-                borderRadius: "8px",
-                padding: "1rem",
-                fontSize: "0.9rem",
-                backgroundColor: "oklch(12.9% 0.042 264.695)",
-              }}
-              className="scrollbar-hidden"
-            >
-              {question.code}
-            </SyntaxHighlighter>
-          </div>
-        </div>
+      {/* Image */}
+      {formData?.imageURL && (
+        <>
+          <p className="font-[Orbitron] text-md text-[#34e47b] [text-shadow:_0_0_10px_#3eeb91]">
+            Image Explanation
+          </p>
+
+          <img
+            src={formData.imageURL}
+            alt={formData?.title || "Question image"}
+            className="mt-3 rounded-xl w-1/2"
+          />
+
+          <div className="h-6" />
+        </>
       )}
 
-      {/* Options */}
-      <div className="pt-4 space-y-3">
+      {/* Examples */}
+      <p className="font-[Orbitron] text-md text-[#34e47b] [text-shadow:_0_0_10px_#3eeb91]">
+        Example
+      </p>
 
-        {["optionA", "optionB", "optionC", "optionD"].map((optKey, i) => {
-          const optLabel = ["a", "b", "c", "d"][i];
-          const optValue = question[optKey];
-          const isSelected = selected === optValue;
+      {Array.isArray(formData?.examples) &&
+        formData.examples.map((item, index) => (
+          <div key={index} className="mt-3 p-3 bg-black rounded-2xl">
+            <div className="font-mono">
+              <p className="text-[#34d8e4]">
+                Input :{" "}
+                <span className="text-neutral-300">
+                  {item?.input || "—"}
+                </span>
+              </p>
 
-          return (
-            <label
-              key={optKey}
-              className={`flex items-center gap-3 option cursor-pointer p-3 rounded-xl transition-all duration-200 
-              ${isSelected ? "shadow-[0_0_15px_#16fa8f] bg-green-900/30" : "bg-black/20"}`}
-            >
-              <input
-                type="radio"
-                name={`q-${question._id}`}
-                value={optValue}
-                checked={isSelected}
-                onChange={(e) => handleSelect(e.target.value)}
-              />
-              <span>{optLabel}) {optValue}</span>
-            </label>
-          );
-        })}
-      </div>
+              <p className="text-[#34d8e4]">
+                Output :{" "}
+                <span className="text-neutral-300">
+                  {item?.output || "—"}
+                </span>
+              </p>
+
+              {item?.explanation && (
+                <p className="text-neutral-400 mt-1">
+                  Explanation : <span>{item.explanation}</span>
+                </p>
+              )}
+            </div>
+          </div>
+        ))}
+
+      <div className="h-6" />
+
+      {/* Constraints */}
+      <p className="font-[Orbitron] text-md text-[#34e47b] [text-shadow:_0_0_10px_#3eeb91] mb-2">
+        Constraints :
+      </p>
+
+      {Array.isArray(formData?.constraints) &&
+        formData.constraints.map((c, index) => (
+          <p
+            key={index}
+            className="font-mono text-lg text-neutral-300"
+          >
+            • {c}
+          </p>
+        ))}
+
+      {/* bottom padding so last line is never cut */}
+      <div className="h-10" />
     </div>
   );
 }

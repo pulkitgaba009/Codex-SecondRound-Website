@@ -1,35 +1,38 @@
-function QuizQuestionsList({ questions, activeId, onSelect, answers }) {
+function QuizQuestionsList({ questions, activeId, onSelect }) {
+  const handleChange = (e) => {
+    const selectedIndex = Number(e.target.value);
+    const selectedQuestion = questions[selectedIndex];
+    if (selectedQuestion) {
+      onSelect(selectedQuestion);
+    }
+  };
+
+  const activeIndex = questions.findIndex((q) => q._id === activeId);
+
   return (
-    <div className="flex items-center md:items-start w-full h-[55%] md:h-[89%] overflow-x-auto md:overflow-y-auto md:overflow-x-hidden scrollbar-hidden mt-2 md:mt-0 ">
-      <div className="px-4 mt-[5px] w-full md:mt-4 text-white gap-4 flex justify-start md:justify-evenly lg:justify-evenly md:flex-wrap min-w-max md:min-w-0">
-        {questions.map((q, index) => {
-          const isActive = q._id === activeId;          
-          const isAnswered = answers[q._id] !== undefined;
-
-          return (
-            <button
-              key={q._id}
-              onClick={() => onSelect(q)}
-              className={`
-                w-[3rem] h-[3rem] md:w-[5rem] md:h-[5rem]
-                text-2xl rounded-full font-[Montserrat] font-semibold
-                transition-all duration-200 mx-1 bg-black
-                text-white
-
-                ${
-                  isActive
-                    ? "border-2 border-[#fcf53a] [box-shadow:_0_0_12px_#FFCC00]"
-                    : isAnswered
-                    ? "border-2 border-[#34e47b] [box-shadow:_0_0_12px_#34e47b]"
-                    : "border-2 border-[#34cae4] [box-shadow:_0_0_12px_#34cae4]"
-                }
-              `}
-            >
-              {index + 1}
-            </button>
-          );
-        })}
-      </div>
+    <div>
+      <select
+        value={activeIndex}
+        onChange={handleChange}
+        className="
+        font-[Orbitron] text-[#e434e4] [text-shadow:_0_0_10px_#a934e4]
+          bg-black/80
+          border-2
+          px-2 py-1
+          rounded-xl
+          font-semibold
+          outline-none
+          focus:border-[#eb0d57]
+          focus:shadow-[0_0_12px_#fc3a3a]
+          transition-all
+        "
+      >
+        {questions.map((q, index) => (
+          <option key={q._id} value={index} className="bg-black text-white">
+            Question {index + 1}
+          </option>
+        ))}
+      </select>
     </div>
   );
 }
