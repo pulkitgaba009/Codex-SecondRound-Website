@@ -4,13 +4,21 @@ import QuestionView from "./QuestionView";
 import QuestionBox from "./QuestionBox";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { RateLimiting,Loading } from "../../Helper";
+import { RateLimiting, Loading } from "../../Helper";
 
 function EditQuestion() {
   const [questions, setQuestions] = useState([]);
   const [selectedQuestion, setSelectedQuestion] = useState(null);
   const [loading, setLoading] = useState(true);
   const [rateLimited, setRateLimited] = useState(false);
+
+  const [formData, setFormData] = useState(null);
+
+  useEffect(() => {
+    if (selectedQuestion) {
+      setFormData(JSON.parse(JSON.stringify(selectedQuestion)));
+    }
+  }, [selectedQuestion]);
 
   useEffect(() => {
     const fetchQuestions = async () => {
@@ -32,36 +40,23 @@ function EditQuestion() {
     fetchQuestions();
   }, []);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setSelectedQuestion((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
+  if (loading) return <Loading />;
 
-  // Loading state
-  if (loading) return <Loading/> ;
+  if (rateLimited) return <RateLimiting />;
 
-  // Rate limit state
-  if (rateLimited) return <RateLimiting/>;
-  
   return (
     <div className="box h-screen w-full">
       {questions.length === 0 ? (
-        // Empty DB UI
         <div className="w-full h-full flex justify-center items-center">
           <h1 className="font-[Orbitron] text-xl text-rose-600 drop-shadow-[0_0_10px_rgba(255,0,0,0.8)]">
             NO QUESTION IN DATABASE — ADD QUESTION FIRST !!!
           </h1>
         </div>
       ) : (
-        // Main Editor UI
+  
         <div className="w-full grid grid-cols-12 grid-rows-12 gap-4">
           <div className="subDivs row-span-12 col-span-7">
-            {selectedQuestion && (
-              <QuestionView formData={selectedQuestion} />
-            )}
+            {selectedQuestion && <QuestionView formData={selectedQuestion} />}
           </div>
 
           <div className="subDivs row-span-4 col-span-5">
@@ -76,15 +71,17 @@ function EditQuestion() {
             <h1 className="authHeading pb-2">Edit Question</h1>
             <hr className="horizontalLine" />
             <div className="w-full flex h-[87%] justify-center overflow-auto scrollbar-hidden">
-              {selectedQuestion && (
+              {formData && (
+                <div className="w-full mt-4 h-[87%] overflow-auto scrollbar-hidden px-8">
                 <QuestionForm
-                  formData={selectedQuestion}
-                  onChange={handleChange}
+                  formData={formData}
+                  setFormData={setFormData}
                   mode="put"
                   isDelete={true}
                   setQuestions={setQuestions}
                   setRateLimited={setRateLimited}
                 />
+                </div>
               )}
             </div>
           </div>

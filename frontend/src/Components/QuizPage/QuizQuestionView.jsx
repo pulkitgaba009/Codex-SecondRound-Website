@@ -4,7 +4,6 @@ function QuestionView({ question }) {
   const formData = question;
 
   return (
-    // THIS is the key: take full height + scroll internally
     <div className="w-full h-full overflow-y-auto scrollbar-hidden px-8 py-4">
 
       {/* Description */}
@@ -43,16 +42,16 @@ function QuestionView({ question }) {
         formData.examples.map((item, index) => (
           <div key={index} className="mt-3 p-3 bg-black rounded-2xl">
             <div className="font-mono">
-              <p className="text-[#34d8e4]">
+              <p className="text-[#34d8e4] [text-shadow:_0_0_12px_#34e47b]">
                 Input :{" "}
-                <span className="text-neutral-300">
+                <span className="text-neutral-300 [text-shadow:_0_0_10px_white]">
                   {item?.input || "—"}
                 </span>
               </p>
 
-              <p className="text-[#34d8e4]">
+              <p className="text-[#34d8e4] [text-shadow:_0_0_12px_#34e47b]">
                 Output :{" "}
-                <span className="text-neutral-300">
+                <span className="text-neutral-300 [text-shadow:_0_0_10px_white]">
                   {item?.output || "—"}
                 </span>
               </p>
@@ -77,13 +76,12 @@ function QuestionView({ question }) {
         formData.constraints.map((c, index) => (
           <p
             key={index}
-            className="font-mono text-lg text-neutral-300"
+            className="font-mono text-lg text-neutral-300 [text-shadow:_0_0_10px_white]"
           >
             • {c}
           </p>
         ))}
 
-      {/* bottom padding so last line is never cut */}
       <div className="h-10" />
     </div>
   );

@@ -8,17 +8,14 @@ function QuestionView({ formData }) {
       <hr className="horizontalLine mt-2" />
 
       <div className="w-full mt-4 h-[85%] overflow-auto scrollbar-hidden px-8">
-        {/* Problem */}
         <h2 className="question">Problem :</h2>
         <h2 className="font-[Orbitron] text-neutral-300 [text-shadow:_0_0_10px_white] text-xl text-left inline">
           {formData?.title || "—"}
         </h2>
-        <p className="questionPara">({formData?._id || "N/A"})</p>
 
         <br />
         <br />
 
-        {/* Description */}
         <p className="font-[Orbitron] text-md text-[#34e47b] [text-shadow:_0_0_10px_#3eeb91]">
           Question Description
         </p>
@@ -29,7 +26,6 @@ function QuestionView({ formData }) {
         <br />
         <br />
 
-        {/* Image */}
         {formData?.imageURL && (
           <>
             <p className="font-[Orbitron] text-md text-[#34e47b] [text-shadow:_0_0_10px_#3eeb91]">
@@ -41,12 +37,11 @@ function QuestionView({ formData }) {
               alt={formData?.title || "Question image"}
               className="mt-2 rounded-xl w-[50%]"
             />
+
+            <br />
           </>
         )}
 
-        <br />
-
-        {/* Examples */}
         <p className="font-[Orbitron] text-md text-[#34e47b] [text-shadow:_0_0_10px_#3eeb91]">
           Example
         </p>
@@ -80,13 +75,12 @@ function QuestionView({ formData }) {
 
         <br />
 
-        {/* All Test Cases (still using examples as you had) */}
         <p className="font-[Orbitron] text-md text-[#34e47b] [text-shadow:_0_0_10px_#3eeb91]">
-          All Test Cases :
+          Hidden Test Cases
         </p>
 
         {Array.isArray(formData?.examples) &&
-          formData.examples.map((item, index) => (
+          formData.hiddenTests.map((item, index) => (
             <div key={index} className="mt-2 p-2 bg-black rounded-2xl">
               <div className="p-2 font-mono">
                 <p className="text-[#34d8e4] [text-shadow:_0_0_12px_#34e47b]">
@@ -108,7 +102,6 @@ function QuestionView({ formData }) {
 
         <br />
 
-        {/* Constraints */}
         <p className="font-[Orbitron] text-md text-[#34e47b] [text-shadow:_0_0_10px_#3eeb91] mb-2">
           Constraints :
         </p>
@@ -126,7 +119,6 @@ function QuestionView({ formData }) {
         <br />
         <br />
 
-        {/* Starter Codes */}
         <p className="question">Language Starter Codes :</p>
 
         {formData?.starterCode &&
@@ -139,7 +131,7 @@ function QuestionView({ formData }) {
 
                 <div className="p-2">
                   <SyntaxHighlighter
-                    language={language?.toLowerCase()}
+                    language={language.toLowerCase()}
                     style={atomDark}
                     customStyle={{
                       borderRadius: "8px",
@@ -148,11 +140,15 @@ function QuestionView({ formData }) {
                       backgroundColor: "oklch(12.9% 0.042 264.695)",
                     }}
                   >
-                    {code || ""}
+                    {code
+                      ? code
+                      : language === "python"
+                        ? "# No code yet"
+                        : "// No code yet"}
                   </SyntaxHighlighter>
                 </div>
               </div>
-            )
+            ),
           )}
       </div>
     </>

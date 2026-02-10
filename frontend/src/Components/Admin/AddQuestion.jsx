@@ -7,14 +7,19 @@ import axios from "axios";
 
 function AddQuestion() {
   const [formData, setFormData] = useState({
-    question: null,
-    optionA: null,
-    optionB: null,
-    optionC: null,
-    optionD: null,
-    answer: null,
-    language: null,
-    code: null
+    title: "",
+    description: "",
+    imageURL: "",
+    examples: [{ input: "", output: "", explanation: "" }],
+    hiddenTests: [{ input: "", output: "" }],
+    constraints: [""],
+    starterCode: {
+      javascript: "",
+      java: "",
+      python: "",
+      c: "",
+      cpp: "",
+    },
   });
 
   const [loading, setLoading] = useState(false);
@@ -23,38 +28,24 @@ function AddQuestion() {
   const postQuestion = async () => {
     try {
       setLoading(true);
-      await axios.post("http://localhost:3000/api/questions", {
-        question:formData.question,
-        optionA:formData.optionA,
-        optionB:formData.optionB,
-        optionC:formData.optionC,
-        optionD:formData.optionD,
-        answer:formData.answer,
-        language:formData.language,
-        code:formData.code,
-      });
-      toast.success("Added question in DB Successfully !!! ");
+      await axios.post(
+        "http://localhost:3000/api/question",
+        formData
+      );
+
+      toast.success("Added question in DB Successfully !!!");
     } catch (error) {
       if (error.response?.status === 429) {
         setRateLimited(true);
       } else {
-        toast.error("Question cant be added in DB");
+        toast.error("Question can't be added in DB");
       }
     } finally {
       setLoading(false);
     }
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
   if (rateLimited) return <RateLimiting />;
-
   return (
     <div className="box">
       <div className="subDivs w-[60%] mt-4">
@@ -68,11 +59,9 @@ function AddQuestion() {
         <div className="w-full mt-4 h-[87%] overflow-auto scrollbar-hidden px-8">
           <QuestionForm
             formData={formData}
-            onChange={handleChange}
+            setFormData={setFormData}
             onSubmit={postQuestion}
-            mode="post"
             isLoading={loading}
-            setRateLimited={setRateLimited}
           />
         </div>
       </div>

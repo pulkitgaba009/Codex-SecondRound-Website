@@ -156,7 +156,6 @@ function Quiz() {
 
                   <hr className="horizontalLine mt-4" />
 
-                  {/* QUESTION CONTENT — SCROLLS ONLY HERE */}
                   <div className="flex-1 min-h-0 overflow-hidden">
                     <QuizQuestionView
                       question={activeQuestion}

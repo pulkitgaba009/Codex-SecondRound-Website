@@ -66,3 +66,15 @@
 .scrollbar-hidden::-webkit-scrollbar {
   display: none;
 }
+
+.input {
+  @apply bg-[rgba(0,0,0,0.5)] border border-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400;
+}
+
+.btn-secondary {
+  @apply font-[Orbitron] hover:text-[#001f1a] text-white bg-[#ff3838d7] [box-shadow:_0_0_15px_#fa5716f4]  mx-auto py-2 text-sm px-4 rounded-lg hover:[box-shadow:_0_0_15px_#00FF9E] hover:bg-[#16fa8f] cursor-pointer;
+}
+
+.formHead {
+  @apply font-[Orbitron] text-[#e6dede] [text-shadow:_0_0_10px_#e6dede];
+}
