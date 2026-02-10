@@ -23,6 +23,7 @@ function Quiz() {
   const [settings, setSettings] = useState(null);
 
   const [language, setLanguage] = useState("javascript");
+
   const [codeMap, setCodeMap] = useState({});
   const [editorValue, setEditorValue] = useState("");
 
@@ -30,13 +31,145 @@ function Quiz() {
   const { team } = useContext(TeamContext);
   const { timeData } = useContext(TimeContext);
 
-  /* ---------------- GUARD: TEAM OR TIME MISSING ---------------- */
-  if (!team || timeData == null) {
+  /* ---------------- HELPERS ---------------- */
+
+  const getInitialCode = (question, lang) => {
+    if (!question) return "";
+
+    return (
+      codeMap?.[question._id]?.[lang] ||
+      question.starterCode?.[lang] ||
+      ""
+    );
+  };
+
+  /* ---------------- EFFECTS ---------------- */
+
+  useEffect(() => {
+    if (!activeQuestion) return;
+    setEditorValue(getInitialCode(activeQuestion, language));
+  }, [activeQuestion, language]);
+
+  /* ---------------- CODE CHANGE ---------------- */
+
+  const handleCodeChange = (value) => {
+    setEditorValue(value);
+
+    if (!activeQuestion) return;
+
+    setCodeMap((prev) => ({
+      ...prev,
+      [activeQuestion._id]: {
+        ...prev[activeQuestion._id],
+        [language]: value,
+        language, // store selected language per question
+      },
+    }));
+  };
+
+  /* ---------------- SETTINGS ---------------- */
+
+  useEffect(() => {
+    const getSettings = async () => {
+      try {
+        const { data } = await axios.get(
+          "http://localhost:3000/api/settings"
+        );
+        setSettings(data[0]);
+      } catch {
+        toast.error("Failed to load quiz settings");
+      }
+    };
+    getSettings();
+  }, []);
+
+  /* ---------------- QUESTIONS ---------------- */
+
+  useEffect(() => {
+    if (!settings) return;
+
+    const fetchQuestions = async () => {
+      try {
+        const { data } = await axios.get(
+          "http://localhost:3000/api/question"
+        );
+
+        let final = [...data];
+
+        if (settings.shuffleStatus) {
+          final.sort(() => Math.random() - 0.5);
+        }
+
+        final = final.slice(0, settings.questionNumbers);
+
+        setQuestions(final);
+        setActiveQuestion(final[0] || null);
+      } catch {
+        toast.error("Failed to load questions");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchQuestions();
+  }, [settings]);
+
+  /* ---------------- BUILD PAYLOAD ---------------- */
+
+  const buildPayload = () => {
+    return {
+      teamName: team,
+      timeRemaining: timeData || 0,
+
+      results: questions.map((q) => {
+        const qState = codeMap[q._id] || {};
+
+        const finalLanguage = qState.language || "javascript";
+
+        const finalCode =
+          qState[finalLanguage] ||
+          q.starterCode?.[finalLanguage] ||
+          "";
+
+        return {
+          questionId: q._id,
+          language: finalLanguage,
+          code: finalCode,
+        };
+      }),
+    };
+  };
+
+  /* ---------------- SUBMIT ---------------- */
+
+  const submitQuiz = async () => {
+    if (submitted) return;
+    setSubmitted(true);
+
+    try {
+      const payload = buildPayload();
+
+      await axios.post(
+        "http://localhost:3000/api/result",
+        payload
+      );
+
+      toast.success("Quiz submitted successfully");
+      navigate("/end");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to submit quiz");
+    }
+  };
+
+  /* ---------------- GUARD ---------------- */
+
+  if (!team) {
     navigate("/end");
     return null;
   }
 
-  /* ---------------- VALIDATION: DUPLICATE SUBMISSION ---------------- */
+    /* ---------------- VALIDATION: DUPLICATE SUBMISSION ---------------- */
   useEffect(() => {
     const checkAlreadySubmitted = async () => {
       try {
@@ -60,140 +193,8 @@ function Quiz() {
     if (team) checkAlreadySubmitted();
   }, [team]);
 
-  /* ---------------- HELPERS ---------------- */
-  const getInitialCode = (question, lang) => {
-    if (!question) return "";
-    return (
-      codeMap?.[question._id]?.[lang] ||
-      question.starterCode?.[lang] ||
-      ""
-    );
-  };
-
-  /* ---------------- EFFECTS ---------------- */
-  useEffect(() => {
-    if (!activeQuestion) return;
-    setEditorValue(getInitialCode(activeQuestion, language));
-  }, [activeQuestion, language]);
-
-  /* ---------------- CODE CHANGE ---------------- */
-  const handleCodeChange = (value) => {
-    setEditorValue(value);
-    if (!activeQuestion) return;
-
-    setCodeMap((prev) => ({
-      ...prev,
-      [activeQuestion._id]: {
-        ...prev[activeQuestion._id],
-        [language]: value,
-        language,
-      },
-    }));
-  };
-
-  /* ---------------- SETTINGS ---------------- */
-  useEffect(() => {
-    const getSettings = async () => {
-      try {
-        const { data } = await axios.get(
-          "http://localhost:3000/api/settings"
-        );
-        setSettings(data[0]);
-      } catch {
-        toast.error("Failed to load quiz settings");
-      }
-    };
-    getSettings();
-  }, []);
-
-  /* ---------------- QUESTIONS ---------------- */
-  useEffect(() => {
-    if (!settings) return;
-
-    const fetchQuestions = async () => {
-      try {
-        const { data } = await axios.get(
-          "http://localhost:3000/api/question"
-        );
-
-        let final = [...data];
-
-        if (settings.shuffleStatus) {
-          final.sort(() => Math.random() - 0.5);
-        }
-
-        final = final.slice(0, settings.questionNumbers);
-        setQuestions(final);
-        setActiveQuestion(final[0] || null);
-      } catch {
-        toast.error("Failed to load questions");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchQuestions();
-  }, [settings]);
-
-  /* ---------------- BUILD PAYLOAD ---------------- */
-  const buildPayload = () => ({
-    teamName: team,
-    timeRemaining: timeData || 0,
-    results: questions.map((q) => {
-      const qState = codeMap[q._id] || {};
-      const finalLanguage = qState.language || "javascript";
-      const finalCode =
-        qState[finalLanguage] ||
-        q.starterCode?.[finalLanguage] ||
-        "";
-
-      return {
-        questionId: q._id,
-        language: finalLanguage,
-        code: finalCode,
-      };
-    }),
-  });
-
-  /* ---------------- SUBMIT ---------------- */
-  const submitQuiz = async () => {
-    if (submitted) return;
-    setSubmitted(true);
-
-    const hasAnyCode = questions.some((q) => {
-      const qState = codeMap[q._id];
-      if (!qState) return false;
-
-      const lang = qState.language || "javascript";
-      const code =
-        qState[lang] || q.starterCode?.[lang] || "";
-
-      return code.trim().length > 0;
-    });
-
-    if (!hasAnyCode) {
-      toast.error("Please attempt at least one question");
-      setSubmitted(false);
-      return;
-    }
-
-    try {
-      const payload = buildPayload();
-
-      await axios.post(
-        "http://localhost:3000/api/result",
-        payload
-      );
-
-      toast.success("Quiz submitted successfully");
-      navigate("/end");
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to submit quiz");
-    }
-  };
-
   /* ---------------- UI ---------------- */
+
   return (
     <Layout>
       <Header />
