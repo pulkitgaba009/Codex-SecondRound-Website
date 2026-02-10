@@ -35,15 +35,21 @@ const deleteResult = async(req,res)=>{
   }
 }
 
-const seeDetailedResult = async (req,res)=>{
+const seeDetailedResult = async (req, res) => {
   try {
-    const {id} = req.params;
-    const data = await Result.findById(id);
+    const { id } = req.params;
+
+    const data = await Result.findById(id).populate({
+      path: "results.questionId",
+      select: "title", 
+    });
+
     res.status(200).json(data);
   } catch (error) {
-     res.status(500).json({"message":"Internal Server Error"});
-     console.log("Error in See Detailed Result Route");
+    console.log("Error in See Detailed Result Route", error);
+    res.status(500).json({ message: "Internal Server Error" });
   }
-}
+};
+
 
 export { getResult, addResult,deleteResult ,seeDetailedResult};

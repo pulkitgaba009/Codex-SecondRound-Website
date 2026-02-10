@@ -117,7 +117,8 @@ function Detailed() {
                 {/* Header */}
                 <div className="flex justify-between items-center px-4 py-2 border-b border-[#1f1f2e]">
                   <h2 className="question text-[#fcf53a] [text-shadow:_0_0_10px_#FFCC00]">
-                    Question {index + 1}
+                    Question {index + 1} : {item.questionId?.title}
+
                   </h2>
 
                   <span
