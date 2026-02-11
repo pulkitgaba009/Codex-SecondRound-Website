@@ -21,11 +21,9 @@ const formatTime = (seconds = 0) => {
 /* ---------- SORT FUNCTION ---------- */
 const sortByScoreAndTime = (results) => {
   return [...results].sort((a, b) => {
-    // 1️⃣ Higher score first
     if (b.score !== a.score) {
       return b.score - a.score;
     }
-    // 2️⃣ Higher remaining time first
     return b.timeRemaining - a.timeRemaining;
   });
 };
@@ -34,8 +32,11 @@ function Leaderboard() {
   const [loading, setLoading] = useState(true);
   const [rateLimited, setRateLimited] = useState(false);
   const [results, setResults] = useState([]);
+  const [executingId, setExecutingId] = useState(null);
+
   const navigate = useNavigate();
 
+  /* ---------- FETCH RESULTS ---------- */
   const getResults = async () => {
     try {
       const { data } = await axios.get("http://localhost:3000/api/result");
@@ -51,6 +52,7 @@ function Leaderboard() {
     }
   };
 
+  /* ---------- DELETE RESULT ---------- */
   const deleteResult = async (id) => {
     try {
       await axios.delete(`http://localhost:3000/api/result/${id}`);
@@ -61,9 +63,27 @@ function Leaderboard() {
     }
   };
 
+  /* ---------- EXECUTE / EVALUATE ---------- */
+  const executeResult = async (id) => {
+    try {
+      setExecutingId(id);
+
+      await axios.post(
+        `http://localhost:3000/api/judge/evaluate/${id}`
+      );
+
+      toast.success("Evaluation completed");
+      await getResults(); // refresh leaderboard
+    } catch (err) {
+      console.error(err);
+      toast.error("Evaluation failed");
+    } finally {
+      setExecutingId(null);
+    }
+  };
+
   useEffect(() => {
     getResults();
-    console.log(results);
   }, []);
 
   if (loading) return <Loading />;
@@ -84,14 +104,17 @@ function Leaderboard() {
           transition={{ delay: 0.3 }}
           className="w-full max-w-7xl bg-black/50 backdrop-blur-xl rounded-2xl"
         >
-          {/* SCROLL CONTAINER */}
           <div className="mt-4 max-h-[82vh] overflow-y-auto scrollbar-hidden">
             <table className="w-full text-white border-collapse">
               <thead className="authHeading sticky top-0 bg-black/70 backdrop-blur-xl z-10">
                 <tr>
                   <th className="py-4 px-4 font-[Orbitron] text-xl text-center">#</th>
-                  <th className="py-4 px-4 font-[Orbitron] text-xl text-left">Team Name</th>
-                  <th className="py-4 px-4 font-[Orbitron] text-xl text-center">Score</th>
+                  <th className="py-4 px-4 font-[Orbitron] text-xl text-left">
+                    Team Name
+                  </th>
+                  <th className="py-4 px-4 font-[Orbitron] text-xl text-center">
+                    Score
+                  </th>
                   <th className="py-4 px-4 font-[Orbitron] text-xl text-center">
                     Time Remaining
                   </th>
@@ -110,33 +133,47 @@ function Leaderboard() {
                     transition={{ delay: index * 0.05 }}
                     className="border-b border-white/10 hover:bg-white/5"
                   >
-                    <td className="py-3 px-4 text-center text-white/80 [text-shadow:_0_0_20px_#ffffff] font-[Orbitron] font-bold">
+                    <td className="py-3 px-4 text-center font-[Orbitron] font-bold text-white/80">
                       {index + 1}
                     </td>
 
-                    <td className="py-3 px-4 font-[Orbitron] text-white/80 [text-shadow:_0_0_20px_#ffffff]">
+                    <td className="py-3 px-4 font-[Orbitron] text-white/80">
                       {item.teamName}
                     </td>
 
-                    <td className="py-3 px-4 font-[Orbitron] text-center text-[#16fa8f] font-bold [text-shadow:_0_0_20px_#16fa8f]">
+                    <td className="py-3 px-4 font-[Orbitron] text-center text-[#16fa8f] font-bold">
                       {item.score}
                     </td>
 
-                    <td className="py-3 px-4 text-center font-mono text-[#34e47b] [text-shadow:_0_0_20px_#16fa8f]">
+                    <td className="py-3 px-4 text-center font-mono text-[#34e47b]">
                       {formatTime(item.timeRemaining)}
                     </td>
 
-                    {/* ACTION BUTTONS */}
+                    {/* ACTIONS */}
                     <td className="py-3 px-4 text-center flex gap-2 justify-center">
+                      {/* VIEW CODE */}
                       <button
-                        onClick={() => {
-                          navigate(`/view/${item._id}`);
-                        }}
+                        onClick={() => navigate(`/view/${item._id}`)}
                         className="bg-[#34e47b] hover:bg-[#27c064] px-4 py-1 rounded-lg font-semibold transition-all font-[Orbitron] text-blue-950"
                       >
                         Code
                       </button>
 
+                      {/* EXECUTE */}
+                      <button
+                        onClick={() => executeResult(item._id)}
+                        disabled={executingId === item._id}
+                        className={`px-4 py-1 rounded-lg font-semibold transition-all font-[Orbitron]
+                          ${
+                            executingId === item._id
+                              ? "bg-gray-500 cursor-not-allowed"
+                              : "bg-[#165afa] hover:bg-[#1286d9] text-white"
+                          }`}
+                      >
+                        {executingId === item._id ? "Evaluating..." : "Evaluate"}
+                      </button>
+
+                      {/* DELETE */}
                       <button
                         onClick={() => deleteResult(item._id)}
                         className="bg-red-600 hover:bg-red-700 px-4 py-1 rounded-lg font-semibold transition-all font-[Orbitron]"
@@ -150,7 +187,7 @@ function Leaderboard() {
             </table>
 
             {sortedResults.length === 0 && (
-              <div className="text-center font-[Orbitron] py-10 text-gray-400 [text-shadow:_0_0_20px_#ffffff]">
+              <div className="text-center font-[Orbitron] py-10 text-gray-400">
                 No results available
               </div>
             )}
