@@ -6,6 +6,7 @@ import resultRoutes from "./routes/result.routes.js";
 import authRoute from "./controllers/auth.controller.js";
 import settingsRoute from "./routes/settings.routes.js"
 import questionsRoute from "./routes/question.routes.js"
+import judgeRoutes from "./routes/judge.routes.js"
 
 dotenv.config();
 
@@ -19,6 +20,7 @@ app.use("/api/result",resultRoutes);
 app.use("/api/auth",authRoute);
 app.use("/api/settings",settingsRoute);
 app.use("/api/question",questionsRoute);
+app.use("/api/judge",judgeRoutes);
 
 connectDB().then(() => {
   app.listen(PORT, () => {

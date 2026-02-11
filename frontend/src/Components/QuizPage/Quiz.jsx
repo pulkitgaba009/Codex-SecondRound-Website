@@ -37,9 +37,7 @@ function Quiz() {
     if (!question) return "";
 
     return (
-      codeMap?.[question._id]?.[lang] ||
-      question.starterCode?.[lang] ||
-      ""
+      codeMap?.[question._id]?.[lang] || question.starterCode?.[lang] || ""
     );
   };
 
@@ -72,9 +70,7 @@ function Quiz() {
   useEffect(() => {
     const getSettings = async () => {
       try {
-        const { data } = await axios.get(
-          "http://localhost:3000/api/settings"
-        );
+        const { data } = await axios.get("http://localhost:3000/api/settings");
         setSettings(data[0]);
       } catch {
         toast.error("Failed to load quiz settings");
@@ -90,9 +86,7 @@ function Quiz() {
 
     const fetchQuestions = async () => {
       try {
-        const { data } = await axios.get(
-          "http://localhost:3000/api/question"
-        );
+        const { data } = await axios.get("http://localhost:3000/api/question");
 
         let final = [...data];
 
@@ -123,18 +117,17 @@ function Quiz() {
 
       results: questions.map((q) => {
         const qState = codeMap[q._id] || {};
-
         const finalLanguage = qState.language || "javascript";
 
-        const finalCode =
-          qState[finalLanguage] ||
-          q.starterCode?.[finalLanguage] ||
-          "";
+        const rawCode =
+          qState[finalLanguage] || q.starterCode?.[finalLanguage] || "";
+
+        const normalizedCode = normalizeOutput(rawCode);
 
         return {
           questionId: q._id,
           language: finalLanguage,
-          code: finalCode,
+          code: normalizedCode,
         };
       }),
     };
@@ -149,10 +142,7 @@ function Quiz() {
     try {
       const payload = buildPayload();
 
-      await axios.post(
-        "http://localhost:3000/api/result",
-        payload
-      );
+      await axios.post("http://localhost:3000/api/result", payload);
 
       toast.success("Quiz submitted successfully");
       navigate("/end");
@@ -169,16 +159,14 @@ function Quiz() {
     return null;
   }
 
-    /* ---------------- VALIDATION: DUPLICATE SUBMISSION ---------------- */
+  /* ---------------- VALIDATION: DUPLICATE SUBMISSION ---------------- */
   useEffect(() => {
     const checkAlreadySubmitted = async () => {
       try {
-        const { data } = await axios.get(
-          "http://localhost:3000/api/result"
-        );
+        const { data } = await axios.get("http://localhost:3000/api/result");
 
         const alreadySubmitted = data.some(
-          (r) => r.teamName?.toUpperCase() === team?.toUpperCase()
+          (r) => r.teamName?.toUpperCase() === team?.toUpperCase(),
         );
 
         if (alreadySubmitted) {
@@ -192,6 +180,22 @@ function Quiz() {
 
     if (team) checkAlreadySubmitted();
   }, [team]);
+
+  const normalizeOutput = (text) => {
+    if (!text) return "";
+    return text
+      .trim()
+      .split("\n")
+      .map((line) =>
+        line
+          .trim()
+          .replace(/\[\s+/g, "[")
+          .replace(/\s+\]/g, "]")
+          .replace(/\s*,\s*/g, ","),
+      )
+      .filter(Boolean)
+      .join("\n");
+  };
 
   /* ---------------- UI ---------------- */
 
