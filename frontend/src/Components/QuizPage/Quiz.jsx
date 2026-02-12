@@ -122,12 +122,10 @@ function Quiz() {
         const rawCode =
           qState[finalLanguage] || q.starterCode?.[finalLanguage] || "";
 
-        const normalizedCode = normalizeOutput(rawCode);
-
         return {
           questionId: q._id,
           language: finalLanguage,
-          code: normalizedCode,
+          code: rawCode,
         };
       }),
     };
@@ -180,22 +178,6 @@ function Quiz() {
 
     if (team) checkAlreadySubmitted();
   }, [team]);
-
-  const normalizeOutput = (text) => {
-    if (!text) return "";
-    return text
-      .trim()
-      .split("\n")
-      .map((line) =>
-        line
-          .trim()
-          .replace(/\[\s+/g, "[")
-          .replace(/\s+\]/g, "]")
-          .replace(/\s*,\s*/g, ","),
-      )
-      .filter(Boolean)
-      .join("\n");
-  };
 
   /* ---------------- UI ---------------- */
 

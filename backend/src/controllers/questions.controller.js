@@ -1,4 +1,4 @@
-import Question from "../models/Question.model.js";
+import Question from "../models/question.model.js";
 
 const getQuestions = async (req, res) => {
   try {
@@ -62,7 +62,7 @@ const updateQuestion = async (req, res) => {
       });
     }
 
-    const updateQuest = await Question.findByIdAndUpdate(id, data);
+    const updateQuest = await Question.findByIdAndUpdate(id, data,{new:true});
 
     if (!updateQuest) {
       return res.status(404).json({

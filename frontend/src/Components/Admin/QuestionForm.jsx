@@ -53,6 +53,16 @@ function QuestionForm({
     }));
   };
 
+  const updateFunctionCallCode = (lang, value) => {
+    setFormData((prev) => ({
+      ...prev,
+      functionCallCode: {
+        ...prev.functionCallCode,
+        [lang]: value,
+      },
+    }));
+  };
+
   const updateQuestion = async () => {
     try {
       setUpdating(true);
@@ -303,18 +313,42 @@ function QuestionForm({
       </section>
 
       <section className="subDivs p-5 rounded-xl">
-        <h2 className="text-xl font-semibold mb-4 formHead">Starter Code</h2>
+        <h2 className="text-xl font-semibold mb-4 formHead">
+          Language Code Configuration
+        </h2>
 
         {Object.keys(formData.starterCode).map((lang) => (
-          <div key={lang} className="mb-4">
-            <label className="block text-sm mb-1 font-[Orbitron] capitalize text-[#34e47b] [text-shadow:_0_0_10px_#3eeb91] ">
+          <div
+            key={lang}
+            className="mb-8 border border-white/10 rounded-xl p-4"
+          >
+            {/* LANGUAGE HEADER */}
+            <h3 className="text-lg font-[Orbitron] capitalize text-[#34e47b] mb-4 [text-shadow:_0_0_10px_#3eeb91]">
               {lang}
+            </h3>
+
+            {/* STARTER CODE */}
+            <label className="block text-sm mb-1 font-[Orbitron] text-green-400">
+              Starter Code (User writes this)
             </label>
             <textarea
-              required={true}
+              required
               value={formData.starterCode[lang]}
               onChange={(e) => updateStarterCode(lang, e.target.value)}
-              className="input font-mono bg-black text-green-400 w-full h-28"
+              className="input font-mono bg-black text-green-400 w-full h-28 mb-4"
+              placeholder={`Starter code for ${lang}`}
+            />
+
+            {/* FUNCTION CALL CODE */}
+            <label className="block text-sm mb-1 font-[Orbitron] text-yellow-400">
+              Function Call Code (Judge runs this)
+            </label>
+            <textarea
+              required
+              value={formData.functionCallCode?.[lang] || ""}
+              onChange={(e) => updateFunctionCallCode(lang, e.target.value)}
+              className="input font-mono bg-black text-yellow-400 w-full h-28"
+              placeholder={`Judge function call for ${lang}`}
             />
           </div>
         ))}

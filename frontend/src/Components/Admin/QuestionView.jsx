@@ -75,6 +75,22 @@ function QuestionView({ formData }) {
 
         <br />
 
+        <p className="font-[Orbitron] text-md text-[#34e47b] [text-shadow:_0_0_10px_#3eeb91] mb-2">
+          Constraints :
+        </p>
+
+        {Array.isArray(formData?.constraints) &&
+          formData.constraints.map((c, index) => (
+            <p
+              key={index}
+              className="font-mono text-lg text-neutral-300 [text-shadow:_0_0_10px_white]"
+            >
+              • {c}
+            </p>
+          ))}
+
+          <br/>
+
         <p className="font-[Orbitron] text-md text-[#34e47b] [text-shadow:_0_0_10px_#3eeb91]">
           Hidden Test Cases
         </p>
@@ -101,55 +117,68 @@ function QuestionView({ formData }) {
           ))}
 
         <br />
-
-        <p className="font-[Orbitron] text-md text-[#34e47b] [text-shadow:_0_0_10px_#3eeb91] mb-2">
-          Constraints :
-        </p>
-
-        {Array.isArray(formData?.constraints) &&
-          formData.constraints.map((c, index) => (
-            <p
-              key={index}
-              className="font-mono text-lg text-neutral-300 [text-shadow:_0_0_10px_white]"
-            >
-              • {c}
-            </p>
-          ))}
-
-        <br />
         <br />
 
-        <p className="question">Language Starter Codes :</p>
+        <p className="question">Language Codes :</p>
 
         {formData?.starterCode &&
-          Object.entries(formData.starterCode).map(
-            ([language, code], index) => (
-              <div key={index} className="mt-4 bg-black rounded-2xl">
-                <h2 className="text-xl font-semibold ml-4 pt-2 code">
-                  Code: {language}
+          Object.keys(formData.starterCode).map((language, index) => {
+            const starter = formData.starterCode?.[language];
+            const wrapper = formData.functionCallCode?.[language];
+
+            return (
+              <div key={index} className="mt-6 bg-black rounded-2xl p-4">
+                {/* LANGUAGE HEADER */}
+                <h2 className="text-2xl font-semibold mb-4 code capitalize">
+                  {language}
                 </h2>
 
-                <div className="p-2">
-                  <SyntaxHighlighter
-                    language={language.toLowerCase()}
-                    style={atomDark}
-                    customStyle={{
-                      borderRadius: "8px",
-                      padding: "1rem",
-                      fontSize: "0.9rem",
-                      backgroundColor: "oklch(12.9% 0.042 264.695)",
-                    }}
-                  >
-                    {code
-                      ? code
-                      : language === "python"
-                        ? "# No code yet"
-                        : "// No code yet"}
-                  </SyntaxHighlighter>
-                </div>
+                {/* STARTER CODE */}
+                <p className="font-[Orbitron] text-sm text-[#34e47b] mb-2">
+                  Starter Code
+                </p>
+                <SyntaxHighlighter
+                  language={language.toLowerCase()}
+                  style={atomDark}
+                  customStyle={{
+                    borderRadius: "8px",
+                    padding: "1rem",
+                    fontSize: "0.9rem",
+                    backgroundColor: "oklch(12.9% 0.042 264.695)",
+                  }}
+                >
+                  {starter
+                    ? starter
+                    : language === "python"
+                      ? "# No starter code"
+                      : "// No starter code"}
+                </SyntaxHighlighter>
+
+                {/* FUNCTION CALL CODE */}
+                <p className="font-[Orbitron] text-sm text-[#facc15] mt-4 mb-2">
+                  Function Call Code (Judge)
+                </p>
+                <SyntaxHighlighter
+                  language={language.toLowerCase()}
+                  style={atomDark}
+                  customStyle={{
+                    borderRadius: "8px",
+                    padding: "1rem",
+                    fontSize: "0.9rem",
+                    backgroundColor: "oklch(12.9% 0.042 264.695)",
+                  }}
+                >
+                  {wrapper
+                    ? wrapper
+                    : language === "python"
+                      ? "# No function call code"
+                      : "// No function call code"}
+                </SyntaxHighlighter>
               </div>
-            ),
-          )}
+            );
+          })}
+
+        <br />
       </div>
     </>
   );

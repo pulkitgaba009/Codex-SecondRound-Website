@@ -55,6 +55,10 @@ const questionSchema = new mongoose.Schema(
       type: starterCodeSchema,
       required: true,
     },
+
+    functionCallCode: {
+      type: starterCodeSchema
+    },
   },
   { timestamps: true }
 );

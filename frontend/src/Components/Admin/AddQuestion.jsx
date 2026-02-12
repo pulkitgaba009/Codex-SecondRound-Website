@@ -7,20 +7,31 @@ import axios from "axios";
 
 function AddQuestion() {
   const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    imageURL: "",
-    examples: [{ input: "", output: "", explanation: "" }],
-    hiddenTests: [{ input: "", output: "" }],
-    constraints: [""],
-    starterCode: {
-      javascript: "",
-      java: "",
-      python: "",
-      c: "",
-      cpp: "",
-    },
-  });
+  title: "",
+  description: "",
+  imageURL: "",
+  examples: [{ input: "", output: "", explanation: "" }],
+  hiddenTests: [{ input: "", output: "" }],
+  constraints: [""],
+
+  starterCode: {
+    javascript: "",
+    java: "",
+    python: "",
+    c: "",
+    cpp: "",
+  },
+
+  // 🔥 NEW: function call / wrapper template per language
+  functionCallCode: {
+    javascript: "",
+    java: "",
+    python: "",
+    c: "",
+    cpp: "",
+  },
+});
+
 
   const [loading, setLoading] = useState(false);
   const [rateLimited, setRateLimited] = useState(false);
@@ -33,6 +44,7 @@ function AddQuestion() {
         formData
       );
 
+      console.log(formData);
       toast.success("Added question in DB Successfully !!!");
     } catch (error) {
       if (error.response?.status === 429) {
