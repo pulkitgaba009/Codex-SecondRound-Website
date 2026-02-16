@@ -3,7 +3,6 @@ import Question from "../models/question.model.js";
 import { executeWithPiston } from "../services/piston.config.js";
 
 /* -------------------- CODE NORMALIZER -------------------- */
-/* -------------------- CODE NORMALIZER -------------------- */
 const normalizeCode = (code) => {
   if (!code) return "";
 
@@ -29,13 +28,18 @@ const normalizeOutput = (text) => {
     .trim()
     .replace(/\r\n/g, "\n")
     .split("\n")
-    .map((line) =>
-      line
-        .replace(/[\[\]]/g, "")     // remove [ ]
-        .replace(/\s*,\s*/g, " ")   // commas → space
-        .replace(/\s+/g, " ")       // normalize spaces
-        .trim()
-    )
+    .map((line) => {
+      const val = line.trim().toLowerCase();
+
+      if (val === "true" || val === "1") return "true";
+      if (val === "false" || val === "0") return "false";
+
+      return val
+        .replace(/[\[\]]/g, "")
+        .replace(/\s*,\s*/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+    })
     .filter(Boolean);
 };
 
@@ -61,107 +65,143 @@ export const evaluateSubmissions = async (req, res) => {
   try {
     const { resultId } = req.params;
 
-    /* 1️⃣ Fetch Result */
-    const result = await Result.findById(resultId).lean();
-    if (!result) {
+    /* 1️⃣ Fetch result document */
+    const resultDoc = await Result.findById(resultId);
+    if (!resultDoc) {
       return res.status(404).json({ message: "Result not found" });
     }
 
-    /* 2️⃣ Populate Question Data */
+    /* 2️⃣ Populate question data */
     const populatedResults = await Promise.all(
-      result.results.map(async (submission) => {
+      resultDoc.results.map(async (submission) => {
         const question = await Question.findById(
           submission.questionId,
           { hiddenTests: 1, functionCallCode: 1 }
         ).lean();
 
         return {
-          ...submission,
+          ...submission.toObject(),
           hiddenTests: question?.hiddenTests || [],
           functionCallCode: question?.functionCallCode || {},
         };
       })
     );
 
-    /* 3️⃣ Pick submission (based on stored language) */
-    const submission = populatedResults.find(
-      (s) => s.language && s.code
-    );
+    const responseResults = [];
+    let totalScoreAdded = 0;
+    let didUpdate = false;
 
-    if (!submission) {
-      return res.status(400).json({
-        message: "No valid submission found",
-      });
-    }
+    /* 🔁 3️⃣ Evaluate ALL submissions */
+    for (const submission of populatedResults) {
+      const language = submission.language;
 
-    const language = submission.language;
+      if (!submission.functionCallCode[language]) {
+        responseResults.push({
+          questionId: submission.questionId,
+          language,
+          verdict: "Judge Error",
+          error: "Missing functionCallCode",
+        });
+        continue;
+      }
 
-    if (!submission.functionCallCode[language]) {
-      return res.status(400).json({
-        message: `No functionCallCode found for language: ${language}`,
-      });
-    }
-
-    /* 🚫 Prevent double scoring */
-    if (submission.verdict === "Accepted") {
-      return res.json({
-        message: "Already accepted. Score not updated again.",
-      });
-    }
-
-    /* 4️⃣ Build FINAL executable code (THIS IS THE FIXED PART) */
-    const normalizedFinalCode = normalizeCode(`
+      /* 4️⃣ Build executable code */
+      const finalCode = normalizeCode(`
 ${submission.code}
 ${submission.functionCallCode[language]}
 `);
 
-    /* 5️⃣ Execute on Piston */
-    const executionResult = await executeWithPiston(
-      language,
-      normalizedFinalCode
-    );
-
-    /* 6️⃣ Compare Outputs */
-    const comparisonResults = compareOutputs(
-      executionResult.output,
-      submission.hiddenTests
-    );
-
-    /* 7️⃣ Calculate Score */
-    const passedCount = comparisonResults.filter(t => t.passed).length;
-    const submissionScore = passedCount * 100;
-
-    /* 8️⃣ Decide Verdict */
-    const verdict =
-      passedCount === submission.hiddenTests.length
-        ? "Accepted"
-        : "Wrong Answer";
-
-    /* 9️⃣ Update MongoDB */
-    await Result.updateOne(
-      {
-        _id: resultId,
-        "results.questionId": submission.questionId,
-        "results.language": language,
-      },
-      {
-        $set: {
-          "results.$.verdict": verdict,
-          "results.$.testResults": comparisonResults,
-        },
-        $inc: {
-          score: submissionScore,
-        },
+      /* 5️⃣ Execute with Piston (SAFE) */
+      let executionResult;
+      try {
+        executionResult = await executeWithPiston(language, finalCode);
+      } catch (err) {
+        responseResults.push({
+          questionId: submission.questionId,
+          language,
+          verdict: "Runtime Error",
+          error: err.message || "Piston execution crashed",
+        });
+        continue;
       }
-    );
 
-    /* ✅ Response */
+      if (!executionResult || executionResult.error) {
+        responseResults.push({
+          questionId: submission.questionId,
+          language,
+          verdict: "Runtime Error",
+          error: executionResult?.error || "Execution failed",
+        });
+        continue;
+      }
+
+      if (!submission.hiddenTests.length) {
+        responseResults.push({
+          questionId: submission.questionId,
+          language,
+          verdict: "Judge Error",
+          error: "Hidden tests missing",
+        });
+        continue;
+      }
+
+      /* 6️⃣ Compare outputs */
+      const comparisonResults = compareOutputs(
+        executionResult.output,
+        submission.hiddenTests
+      );
+
+      const passedCount = comparisonResults.filter(t => t.passed).length;
+      const scoreAdded = passedCount * 100;
+
+      const verdict =
+        passedCount === submission.hiddenTests.length
+          ? "Accepted"
+          : "Wrong Answer";
+
+      let actuallyAddedScore = 0;
+
+      /* 7️⃣ Update DB ONLY if Pending */
+      if (!submission.verdict || submission.verdict === "Pending") {
+        const idx = resultDoc.results.findIndex(
+          (r) =>
+            r.questionId.toString() === submission.questionId.toString() &&
+            r.language === language
+        );
+
+        if (idx !== -1) {
+          resultDoc.results[idx].verdict = verdict;
+          resultDoc.results[idx].testResults = comparisonResults;
+          resultDoc.score += scoreAdded;
+
+          totalScoreAdded += scoreAdded;
+          actuallyAddedScore = scoreAdded;
+          didUpdate = true;
+        }
+      }
+
+      /* 8️⃣ Always push response */
+      responseResults.push({
+        questionId: submission.questionId,
+        language,
+        executionOutput: executionResult.output,
+        verdict,
+        passedTests: passedCount,
+        scoreAdded: actuallyAddedScore,
+        comparisonResults,
+      });
+    }
+
+    /* 9️⃣ Save only if something changed */
+    if (didUpdate) {
+      await resultDoc.save();
+    }
+
+    /* ✅ FINAL RESPONSE */
     res.json({
-      language,
-      verdict,
-      passedTests: passedCount,
-      scoreAdded: submissionScore,
-      comparisonResults,
+      message: "Evaluation completed",
+      totalScoreAdded,
+      results: responseResults,
     });
 
   } catch (error) {

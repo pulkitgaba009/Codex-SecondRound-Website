@@ -113,12 +113,9 @@ function QuizDashboard() {
   // Loading state
   if (loading) return <Loading />;
 
-  // Rate limit state
-  if (rateLimited) return <RateLimiting />;
-
   return (
     <div className="box flex justify-center items-center">
-      <div className="subDivs h-[65%] rounded-lg">
+      <div className="subDivs h-[55%] rounded-lg">
         <h1 className="authHeading">Quiz Control Panel</h1>
         <hr className="horizontalLine mt-2" />
         <br />
@@ -170,21 +167,6 @@ function QuizDashboard() {
               min={0}
               max={59}
             />
-
-            <br />
-            <br />
-
-            {/* Quiz Status */}
-            <label className="label">Quiz Active Status:</label>
-            <button
-              type="button"
-              onClick={toggleHandler}
-              className={`ml-23 px-6 py-2 text-xl rounded-2xl font-[Orbitron] transition-all font-semibold ${
-                isOn ? "bg-[#16fa8f] text-[#001f1a]" : "bg-[#fa1616] text-white"
-              }`}
-            >
-              {isOn ? "ON" : "OFF"}
-            </button>
 
             <br />
             <br />

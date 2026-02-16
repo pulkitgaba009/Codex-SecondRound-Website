@@ -14,6 +14,7 @@ import { Loading } from "../../Helper";
 import LanguageSelector from "./LanguageSelector";
 import { LanguageConfig } from "../../data/languageConfig.js";
 import CodeEditor from "./CodeEditor.jsx";
+import SecureQuiz from "./SecureQuiz";
 
 function Quiz() {
   const [activeQuestion, setActiveQuestion] = useState(null);
@@ -184,6 +185,7 @@ function Quiz() {
   return (
     <Layout>
       <Header />
+      <SecureQuiz onAutoSubmit={submitQuiz} /> 
 
       <motion.div
         initial={{ opacity: 0, scale: 0.97 }}

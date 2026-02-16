@@ -6,7 +6,7 @@ function QuestionBox({ questions, onSelect, activeId }) {
 
       <div className="w-full flex h-[67%] overflow-auto scrollbar-hidden px-4 pb-4 mt-4 text-white gap-8 flex-wrap">
         {questions.map((q, index) => {
-          const id = q._id || q.id;        // support API + local data
+          const id = q._id || q.id;        
           const isActive = id === activeId;
 
           return (
