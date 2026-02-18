@@ -24,7 +24,7 @@ const LANGUAGE_CONFIG = {
   java: {
     language: "java",
     version: "15.0.2",
-    file: "Main.java", // ⚠️ CASE-SENSITIVE
+    file: "Solution.java", // ✅ MUST MATCH CLASS NAME
   },
 };
 
@@ -37,7 +37,9 @@ export const executeWithPiston = async (language, code) => {
 
   const response = await fetch(PISTON_URL, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+    },
     body: JSON.stringify({
       language: config.language,
       version: config.version,
@@ -51,7 +53,8 @@ export const executeWithPiston = async (language, code) => {
   });
 
   if (!response.ok) {
-    throw new Error(`Piston error: ${response.status}`);
+    const text = await response.text();
+    throw new Error(`Piston error: ${response.status} - ${text}`);
   }
 
   const data = await response.json();
