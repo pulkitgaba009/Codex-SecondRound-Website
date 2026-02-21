@@ -185,7 +185,7 @@ function Quiz() {
   return (
     <Layout>
       <Header />
-      <SecureQuiz onAutoSubmit={submitQuiz} /> 
+      {/* <SecureQuiz onAutoSubmit={submitQuiz} />  */}
 
       <motion.div
         initial={{ opacity: 0, scale: 0.97 }}

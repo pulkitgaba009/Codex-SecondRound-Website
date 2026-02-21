@@ -1,4 +1,4 @@
-const PISTON_URL = "https://emkc.org/api/v2/piston/execute";
+const PISTON_URL = "http://localhost:2000/api/v2/execute";
 
 const LANGUAGE_CONFIG = {
   javascript: {
@@ -17,14 +17,14 @@ const LANGUAGE_CONFIG = {
     file: "main.c",
   },
   cpp: {
-    language: "cpp",
+    language: "c++",
     version: "10.2.0",
     file: "main.cpp",
   },
   java: {
     language: "java",
     version: "15.0.2",
-    file: "Solution.java", // ✅ MUST MATCH CLASS NAME
+    file: "Solution.java", 
   },
 };
 
