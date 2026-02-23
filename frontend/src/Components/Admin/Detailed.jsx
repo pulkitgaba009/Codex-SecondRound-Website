@@ -6,6 +6,7 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { atomDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { Loading } from "../../Helper";
 import Layout from "../Layout";
+import api from "../../../utils/axios";
 
 function Detailed() {
   const { id } = useParams();
@@ -18,8 +19,8 @@ function Detailed() {
   useEffect(() => {
     const getResult = async () => {
       try {
-        const { data } = await axios.get(
-          `http://localhost:3000/api/result/${id}`,
+        const { data } = await api.get(
+          `/result/${id}`,
         );
         setData(data);
       } catch (error) {
@@ -33,7 +34,7 @@ function Detailed() {
   useEffect(() => {
     const getSettings = async () => {
       try {
-        const { data } = await axios.get("http://localhost:3000/api/settings");
+        const { data } = await api.get("/settings");
         setSettings(data?.[0]);
       } catch (error) {
         toast.error("Error in loading settings");
