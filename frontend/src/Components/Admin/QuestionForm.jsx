@@ -1,4 +1,4 @@
-import axios from "axios";
+import api from "../../../utils/axios";
 import { useState } from "react";
 import toast from "react-hot-toast";
 
@@ -67,12 +67,12 @@ function QuestionForm({
     try {
       setUpdating(true);
 
-      await axios.put(
-        `http://localhost:3000/api/question/${formData._id}`,
+      await api.put(
+        `/question/${formData._id}`,
         formData,
       );
 
-      const { data } = await axios.get("http://localhost:3000/api/question");
+      const { data } = await api.get("/question");
       setQuestions(data);
 
       toast.success("Question updated successfully ✅");
@@ -91,7 +91,7 @@ function QuestionForm({
     try {
       setDeleting(true);
 
-      await axios.delete(`http://localhost:3000/api/question/${formData._id}`);
+      await api.delete(`/question/${formData._id}`);
 
       setQuestions((prev) => prev.filter((q) => q._id !== formData._id));
 

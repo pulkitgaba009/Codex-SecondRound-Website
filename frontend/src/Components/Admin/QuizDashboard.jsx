@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../../../utils/axios";
 import toast from "react-hot-toast";
 import { Loading, RateLimiting } from "../../Helper";
 
@@ -25,7 +25,7 @@ function QuizDashboard() {
 
   const getSettings = async () => {
       try {
-        const { data } = await axios.get("http://localhost:3000/api/settings");
+        const { data } = await api.get("/settings");
     
         const hours = Math.floor(data[0].quizTime / 3600);
         const minuts = Math.floor((data[0].quizTime % 3600) / 60);
@@ -91,7 +91,7 @@ function QuizDashboard() {
     const putSettings = async()=>{
       try{
         setUpdate(true);
-        await axios.put("http://localhost:3000/api/settings/6977aeff56528f6ed630fd3e",payload);
+        await api.put("/settings/6977aeff56528f6ed630fd3e",payload);
         getSettings();
         toast.success("Settings Updated Successfully !!!");
       }catch(error){

@@ -8,7 +8,7 @@ import Countdown from "./Countdown";
 import Header from "../Header";
 import TeamContext from "../../Contexts/teamContext";
 import TimeContext from "../../Contexts/timeContext";
-import axios from "axios";
+import api from "../../../utils/axios.js";
 import toast from "react-hot-toast";
 import { Loading } from "../../Helper";
 import LanguageSelector from "./LanguageSelector";
@@ -71,7 +71,7 @@ function Quiz() {
   useEffect(() => {
     const getSettings = async () => {
       try {
-        const { data } = await axios.get("http://localhost:3000/api/settings");
+        const { data } = await api.get("/settings");
         setSettings(data[0]);
       } catch {
         toast.error("Failed to load quiz settings");
@@ -87,7 +87,7 @@ function Quiz() {
 
     const fetchQuestions = async () => {
       try {
-        const { data } = await axios.get("http://localhost:3000/api/question");
+        const { data } = await api.get("/question");
 
         let final = [...data];
 
@@ -141,7 +141,7 @@ function Quiz() {
     try {
       const payload = buildPayload();
 
-      await axios.post("http://localhost:3000/api/result", payload);
+      await api.post("/result", payload);
 
       toast.success("Quiz submitted successfully");
       navigate("/end");
@@ -162,7 +162,7 @@ function Quiz() {
   useEffect(() => {
     const checkAlreadySubmitted = async () => {
       try {
-        const { data } = await axios.get("http://localhost:3000/api/result");
+        const { data } = await api.get("/result");
 
         const alreadySubmitted = data.some(
           (r) => r.teamName?.toUpperCase() === team?.toUpperCase(),
@@ -185,7 +185,7 @@ function Quiz() {
   return (
     <Layout>
       <Header />
-      {/* <SecureQuiz onAutoSubmit={submitQuiz} />  */}
+      <SecureQuiz onAutoSubmit={submitQuiz} /> 
 
       <motion.div
         initial={{ opacity: 0, scale: 0.97 }}

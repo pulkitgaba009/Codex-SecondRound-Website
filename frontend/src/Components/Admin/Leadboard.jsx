@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import axios from "axios";
+import api from "../../../utils/axios";
 import { Loading, RateLimiting } from "../../Helper";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
@@ -39,7 +39,7 @@ function Leaderboard() {
   /* ---------- FETCH RESULTS ---------- */
   const getResults = async () => {
     try {
-      const { data } = await axios.get("http://localhost:3000/api/result");
+      const { data } = await api.get("/result");
       setResults(data);
     } catch (error) {
       if (error.response?.status === 429) {
@@ -55,7 +55,7 @@ function Leaderboard() {
   /* ---------- DELETE RESULT ---------- */
   const deleteResult = async (id) => {
     try {
-      await axios.delete(`http://localhost:3000/api/result/${id}`);
+      await api.delete(`/result/${id}`);
       setResults((prev) => prev.filter((item) => item._id !== id));
       toast.success("Result deleted");
     } catch {
@@ -68,8 +68,8 @@ function Leaderboard() {
     try {
       setExecutingId(id);
 
-      await axios.post(
-        `http://localhost:3000/api/judge/evaluate/${id}`
+      await api.post(
+        `/judge/evaluate/${id}`
       );
 
       toast.success("Evaluation completed");

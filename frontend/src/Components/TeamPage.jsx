@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import Header from "./Header";
 import TeamContext from "../Contexts/teamContext";
-import axios from "axios";
+import api from "../../utils/axios";
 import toast from "react-hot-toast";
 
 function TeamPage() {
@@ -18,7 +18,7 @@ function TeamPage() {
   useEffect(() => {
     const getResults = async () => {
       try {
-        const { data } = await axios.get("http://localhost:3000/api/result");
+        const { data } = await api.get("/result");
         setResults(data);
       } catch (error) {
         toast.error("Failed to data");

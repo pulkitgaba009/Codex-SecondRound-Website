@@ -11,10 +11,10 @@ export default function Countdown({
 
   const { setTimeData } = useContext(TimeContext);
 
+  // Share time via context
   useEffect(() => {
-  setTimeData(time); 
-}, [time, setTimeData]);
-
+    setTimeData(time);
+  }, [time, setTimeData]);
 
   // Reset logic
   useEffect(() => {
@@ -24,7 +24,7 @@ export default function Countdown({
     }
   }, [startSeconds, resetOnStart]);
 
-  // Timer effect
+  // Timer logic
   useEffect(() => {
     if (time <= 0) {
       if (!completedRef.current) {
@@ -41,13 +41,18 @@ export default function Countdown({
     return () => clearInterval(timer);
   }, [time, onComplete]);
 
-  const minutes = Math.floor(Math.max(0, time) / 60);
-  const seconds = Math.max(0, time) % 60;
+  // ---- TIME CALCULATION ----
+  const safeTime = Math.max(0, time);
+  const hours = Math.floor(safeTime / 3600);
+  const minutes = Math.floor((safeTime % 3600) / 60);
+  const seconds = safeTime % 60;
 
   return (
     <div className="flex items-center justify-center mt-2">
       <div className="font-bold text-red-700 bg-black/60 border border-red-700 mr-5 px-3 rounded-md font-[Orbitron]">
-        {String(minutes).padStart(2, "0")} : {String(seconds).padStart(2, "0")}
+        {String(hours).padStart(2, "0")} : &nbsp;
+        {String(minutes).padStart(2, "0")} :&nbsp;
+        {String(seconds).padStart(2, "0")}
       </div>
     </div>
   );

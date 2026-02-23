@@ -74,17 +74,17 @@ export const evaluateSubmissions = async (req, res) => {
     /* 2️⃣ Populate question data */
     const populatedResults = await Promise.all(
       resultDoc.results.map(async (submission) => {
-        const question = await Question.findById(
-          submission.questionId,
-          { hiddenTests: 1, functionCallCode: 1 }
-        ).lean();
+        const question = await Question.findById(submission.questionId, {
+          hiddenTests: 1,
+          functionCallCode: 1,
+        }).lean();
 
         return {
           ...submission.toObject(),
           hiddenTests: question?.hiddenTests || [],
           functionCallCode: question?.functionCallCode || {},
         };
-      })
+      }),
     );
 
     const responseResults = [];
@@ -146,12 +146,15 @@ ${submission.functionCallCode[language]}
       }
 
       /* 6️⃣ Compare outputs */
+      const programOutput =
+        executionResult.stdout?.trim() || executionResult.output?.trim() || "";
+
       const comparisonResults = compareOutputs(
-        executionResult.output,
-        submission.hiddenTests
+        programOutput,
+        submission.hiddenTests,
       );
 
-      const passedCount = comparisonResults.filter(t => t.passed).length;
+      const passedCount = comparisonResults.filter((t) => t.passed).length;
       const scoreAdded = passedCount * 100;
 
       const verdict =
@@ -166,7 +169,7 @@ ${submission.functionCallCode[language]}
         const idx = resultDoc.results.findIndex(
           (r) =>
             r.questionId.toString() === submission.questionId.toString() &&
-            r.language === language
+            r.language === language,
         );
 
         if (idx !== -1) {
@@ -184,7 +187,7 @@ ${submission.functionCallCode[language]}
       responseResults.push({
         questionId: submission.questionId,
         language,
-        executionOutput: executionResult.output,
+        executionOutput: programOutput,
         verdict,
         passedTests: passedCount,
         scoreAdded: actuallyAddedScore,
@@ -203,7 +206,6 @@ ${submission.functionCallCode[language]}
       totalScoreAdded,
       results: responseResults,
     });
-
   } catch (error) {
     console.error("========== JUDGE ERROR ==========");
     console.error(error);

@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import Layout from "../Layout";
-import axios from "axios";
+import api from "../../../utils/axios";
 import toast from "react-hot-toast";
 
 export default function AdminAuth() {
@@ -12,7 +12,7 @@ export default function AdminAuth() {
     e.preventDefault();
 
     try {
-      const res = await axios.post("http://localhost:3000/api/auth", {
+      const res = await api.post("/auth", {
         password,
       });
 
