@@ -12,7 +12,7 @@ import api from "../../../utils/axios.js";
 import toast from "react-hot-toast";
 import { Loading } from "../../Helper";
 import LanguageSelector from "./LanguageSelector";
-import { LanguageConfig } from "../../data/languageConfig.js";
+import { LanguageConfig } from "../../data/LanguageConfig.js";
 import CodeEditor from "./CodeEditor.jsx";
 import SecureQuiz from "./SecureQuiz";
 
