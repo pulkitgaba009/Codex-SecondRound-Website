@@ -18,7 +18,7 @@ const __dirname = path.resolve();
 if (process.env.NODE_ENV !== "production") {
   app.use(
     cors({
-      origin: ["http://localhost:3000", "http://localhost:5173"],
+      origin: ["http://localhost:3000", "http://localhost:5173","http://localhost:5174"],
       credentials: true,
     }),
   );
@@ -41,8 +41,12 @@ if (process.env.NODE_ENV === "production") {
   });
 }
 
-connectDB().then(() => {
-  app.listen(PORT, () => {
-    console.log(`App is working on port: ${PORT}`);
+connectDB()
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`Server + DB running on ${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error("DB connection failed:", err);
   });
-});
