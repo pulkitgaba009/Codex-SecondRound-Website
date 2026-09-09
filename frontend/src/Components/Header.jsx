@@ -10,7 +10,7 @@ function Header() {
         transition={{ duration: 0.6, ease: "easeOut" }}
         className="fixed top-0 left-0 w-full h-16 sm:h-20
         bg-black/60 backdrop-blur-md 
-        flex items-center justify-between 
+        flex items-center justify-center 
         px-4 sm:px-8 z-50"
       >
         <div className="bg-white h-12 py-2 px-10 rounded-full flex items-center">
