@@ -13,7 +13,7 @@ function Header() {
         flex items-center justify-center 
         px-4 sm:px-8 z-50"
       >
-        <div className="bg-white h-12 py-2 px-10 rounded-full flex items-center">
+        <div className="absolute left-4 sm:left-8 w-64 sm:w-72 h-12 bg-white px-4 rounded-full flex items-center">
           <img src="/UUlogo.png" className="w-full h-full object-contain" />
         </div>
 
