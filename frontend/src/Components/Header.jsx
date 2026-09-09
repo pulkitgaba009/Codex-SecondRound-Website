@@ -25,16 +25,7 @@ function Header() {
           UTTARANCHAL SCHOOL OF COMPUTING SCIENCES
         </h1>
 
-        <div
-          className="h-12 w-12 sm:h-16 sm:w-16 p-1 
-          border-2 border-indigo-400 rounded-full 
-          shadow-[0_0_15px_rgba(99,102,241,0.7)] animate-pulse"
-        >
-          <img
-            src="/IT-utsav.png"
-            className="w-full h-full object-cover rounded-full"
-          />
-        </div>
+        
       </motion.div>
     </div>
   );
