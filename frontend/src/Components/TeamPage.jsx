@@ -64,7 +64,7 @@ function TeamPage() {
           text-4xl sm:text-5xl md:text-6xl lg:text-7xl 
           [text-shadow:_0_0_10px_#3eeb91]"
         >
-          CODE KE BOSS <br /> 2026
+          BYTE 3.0 <br /> 2026
         </motion.h1>
 
         {/* SUBTITLE */}
