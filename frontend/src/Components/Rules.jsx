@@ -43,7 +43,7 @@ export default function Rules() {
             className="font-[Orbitron] text-[#34e47b] text-xl sm:text-2xl 
             text-center [text-shadow:_0_0_10px_#3eeb91]"
           >
-            Welcome to the first challenge of Code Ke Boss 2025!
+            Welcome to the first challenge of BYTE 3.0 2026!
           </motion.h2>
 
           <motion.p
