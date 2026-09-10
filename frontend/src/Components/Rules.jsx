@@ -129,7 +129,7 @@ export default function Rules() {
               className="rulePara list-disc ml-5"
             >
               <li>Each question carries <strong>30 points</strong>, broken down as follows:</li>
-              <ul>
+              <ul className="list-disc ml-8">
                   <li><strong>10 points</strong> - Task Completion</li>
                   <li><strong>10 points</strong> - Code Efficiency</li>
                   <li><strong>10 points</strong> - Algorithm Approach</li>
