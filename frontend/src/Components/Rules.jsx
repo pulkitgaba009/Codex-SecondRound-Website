@@ -79,8 +79,8 @@ export default function Rules() {
               className="rulePara list-disc ml-5"
             >
               <li>Type: Logic-Based Case Study</li>
-              <li>Number of Questions: 3 Case-Study Based Question</li>
-              <li>Time Limit: 60 minutes</li>
+              <li>Number of Questions: <strong>3 Case-Study Based Question</strong></li>
+              <li>Time Limit:<strong> 60 minutes</strong></li>
               <li>Mode: Online interface / on-paper (as per setup)</li>
             </motion.ul>
 
