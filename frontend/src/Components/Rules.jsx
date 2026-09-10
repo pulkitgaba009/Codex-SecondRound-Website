@@ -135,7 +135,7 @@ export default function Rules() {
                   <li><strong>10 points</strong> - Algorithm Approach</li>
               </ul>
               <li>No external resources allowed.</li>
-              <li>Switching tabs during the competition is strictly prohibited. If a participant is found switching tabs, their test/session will be automatically locked/submitted, and they will be directly disqualified from the round.</li>
+              <li><strong>Switching tabs </strong>during the competition is <strong>strictly prohibited.</strong> If a participant is found switching tabs, their test/session will be automatically locked/submitted, and they will be directly disqualified from the round.</li>
             </motion.ul>
 
             <br />
